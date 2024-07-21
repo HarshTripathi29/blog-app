@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const secret = 'harsh'
 
 const app = express();
@@ -13,7 +14,7 @@ app.use(cors({
 }));
 
 app.use(express.json()); // Middleware to parse JSON request body
-
+app.use(cookieParser);
 mongoose.connect('mongodb+srv://harshtripathi042:harsh123@cluster0.etqbz6r.mongodb.net/blog');
 
 app.get('/', function(req, res){
@@ -56,6 +57,19 @@ app.post('/login',async function(req, res){
     }
 });
 
+
+app.get('/profile', function(req,res){
+
+    const {token}=req.cookies;
+    jwt.verify(token, secret, {}, (err,info)=>{
+        if(err) throw err;
+        res.json(info);
+    });
+});
+
+app.post('/logout', function(req, res){
+    res.cookie('token','').json();
+})
 
 app.listen(5000, () => {
     console.log('server running at port 5000');
